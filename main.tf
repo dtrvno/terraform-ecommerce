@@ -11,44 +11,83 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+resource "aws_internet_gateway" "ecommerce-ig" {
+  vpc_id = aws_vpc.ecommerce-vpc.id
 
-resource "aws_subnet" "public_subnet_zone1" {
-  availability_zone = data.aws_availability_zones.available.names[0]
-  vpc_id=aws_vpc.ecommerce-vpc.id
-  cidr_block="10.0.0.0/24"
-  map_public_ip_on_launch="true"
   tags = {
-    Name="ecommerce-public-subnet1"
+    Name = "ECommerceIG"
   }
-  
+}
+resource "aws_route_table" "ecommerce-public-route-table" {
+  vpc_id = aws_vpc.ecommerce-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.ecommerce-ig.id
+  }
+
+  tags = {
+    Name = "ecommerce-route"
+  }
 }
 
-resource "aws_subnet" "public_subnet_zone2" {
-  availability_zone = data.aws_availability_zones.available.names[1]
-  vpc_id=aws_vpc.ecommerce-vpc.id
-  cidr_block="10.0.1.0/24"
-  map_public_ip_on_launch="true"
-  tags = {
-    Name="ecommerce-public-subnet2"
-  }
-  
-}
-resource "aws_subnet" "private_subnet_zone1" {
-  availability_zone = data.aws_availability_zones.available.names[0]
-  vpc_id=aws_vpc.ecommerce-vpc.id
-  cidr_block="10.0.2.0/24"
-  tags = {
-    Name="ecommerce-public-subnet1"
-  }
-  
+resource "aws_route_table_association" "ecommerce-public-zone1" {
+  subnet_id      = aws_subnet.public_subnet_zone1.id
+  route_table_id = aws_route_table.ecommerce-public-route-table.id
 }
 
-resource "aws_subnet" "private_subnet_zone2" {
-  availability_zone = data.aws_availability_zones.available.names[1]
-  vpc_id=aws_vpc.ecommerce-vpc.id
-  cidr_block="10.0.3.0/24"
+resource "aws_route_table_association" "ecommerce-public-zone2" {
+  subnet_id      = aws_subnet.public_subnet_zone2.id
+  route_table_id = aws_route_table.ecommerce-public-route-table.id
+}
+resource "aws_route_table_association" "ecommerce-private-zone1" {
+  subnet_id      = aws_subnet.private_subnet_zone1.id
+  route_table_id = aws_route_table.ecommerce-private-route-table.id
+}
+
+resource "aws_route_table_association" "ecommerce-private-zone2" {
+  subnet_id      = aws_subnet.private_subnet_zone2.id
+  route_table_id = aws_route_table.ecommerce-private-route-table.id
+}
+
+resource "aws_eip" "eip_zone1" {
+  vpc = true
+}
+
+resource "aws_eip" "eip_zone2" {
+  vpc = true
+}
+resource "aws_nat_gateway" "nat_gateway_zone1" {
+  allocation_id = aws_eip.eip_zone1.id
+  subnet_id = aws_subnet.public_subnet_zone1.id
   tags = {
-    Name="ecommerce-public-subnet2"
+    "Name" = "ECommerceNatGatewayZone1"
   }
-  
+  depends_on = [aws_internet_gateway.ecommerce-ig]
+}
+
+resource "aws_nat_gateway" "nat_gateway_zone2" {
+  allocation_id = aws_eip.eip_zone2.id
+  subnet_id = aws_subnet.public_subnet_zone2.id
+  tags = {
+    "Name" = "ECommerceNatGatewayZone2"
+  }
+  depends_on = [aws_internet_gateway.ecommerce-ig]
+}
+
+resource "aws_route_table" "ecommerce-private-route-table" {
+  vpc_id = aws_vpc.ecommerce-vpc.id
+
+  route {
+    cidr_block = aws_subnet.private_subnet_zone1.cidr_block
+    nat_gateway_id = aws_nat_gateway.nat_gateway_zone1.id
+  }
+  route {
+    cidr_block = aws_subnet.private_subnet_zone2.cidr_block
+    nat_gateway_id = aws_nat_gateway.nat_gateway_zone2.id
+  }
+
+  tags = {
+    Name = "ecommerce-route"
+  }
 }
