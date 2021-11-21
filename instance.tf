@@ -24,7 +24,7 @@ resource "aws_instance" "ecommerce-angular-zone1" {
    tags = {
      Name="angular-ecommerce1"
    }
-   depends_on = [aws_instance.ecommerce-spring-zone1]
+   
 }
 
 resource "aws_instance" "ecommerce-angular-zone2" {
@@ -46,7 +46,7 @@ resource "aws_instance" "ecommerce-angular-zone2" {
    tags = {
      Name="angular-ecommerce2"
    }
-   depends_on = [aws_instance.ecommerce-spring-zone2]
+   
 }
 
 resource "aws_instance" "ecommerce-spring-zone1" {
