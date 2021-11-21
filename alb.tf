@@ -18,13 +18,14 @@ resource "aws_alb_target_group" "alb_spring_ecommerce" {
 	port	= "8443"
 	protocol	= "HTTPS"
     health_check {
-        port="8443"
+        port="8443"   
         protocol="HTTPS"
         healthy_threshold   = 5    
-        unhealthy_threshold = 2    
+        unhealthy_threshold = 5    
         timeout             = 5    
         interval            = 30    
-        path                = "/api/products"    
+        path                = "/api/products" 
+          
     }	
 }
 variable "certificate_arn" {

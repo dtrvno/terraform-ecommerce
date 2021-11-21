@@ -106,13 +106,13 @@ resource "aws_lb_target_group_attachment" "ecommerce_angular2" {
 }
 resource "aws_lb_target_group_attachment" "ecommerce_spring1" {
   target_group_arn = aws_alb_target_group.alb_spring_ecommerce.arn
-  target_id        = aws_instance.ecommerce-angular-zone1.id
+  target_id        = aws_instance.ecommerce-spring-zone1.id
   port             = 8443
   depends_on = [aws_instance.ecommerce-spring-zone1]
 }
 resource "aws_lb_target_group_attachment" "ecommerce_spring2" {
   target_group_arn = aws_alb_target_group.alb_spring_ecommerce.arn
-  target_id        = aws_instance.ecommerce-angular-zone2.id
+  target_id        = aws_instance.ecommerce-spring-zone2.id
   port             = 8443
   depends_on = [aws_instance.ecommerce-spring-zone2]
 }
