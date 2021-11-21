@@ -1,10 +1,13 @@
-
-data "aws_route53_zone" "myzone" {
-  name         = "dtrubov.net."
+variable "domain_name" {
+    description ="any arbitrary domain"
 }
+data "aws_route53_zone" "myzone" {
+  name         = "${var.domain_name}."
+}
+
 resource "aws_route53_record" "ecommerce-route53" {
   allow_overwrite = true
-  name            = "dtrubov.net"
+  name            = var.domain_name
   type            = "A"
   zone_id         = data.aws_route53_zone.myzone.zone_id
 
