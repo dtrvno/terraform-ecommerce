@@ -4,17 +4,28 @@ variable "ecommerce_ami" {
 variable "key_pair_name" {
     description="key pair created for the user for certain region"
 }
-
+variable "ecommerce_role" {
+    description="IAM role for the instance"
+}
+resource "aws_iam_instance_profile" "ecommerce_profile" {
+  name = "ecommerce_profile"
+  role = var.ecommerce_role
+}
 resource "aws_instance" "ecommerce-angular-zone1" {
     ami=var.ecommerce_ami
     instance_type="t2.micro"
     availability_zone="${data.aws_availability_zones.available.names[0]}"
     key_name=var.key_pair_name
+    iam_instance_profile="${aws_iam_instance_profile.ecommerce_profile.name}"
     subnet_id="${aws_subnet.public_subnet_zone1.id}"
     security_groups=["${aws_security_group.security_group_public.id}"]
     user_data = <<-EOF
             #!/bin/bash
             yum update -y
+            sudo yum install ruby -y
+            wget https://aws-codedeploy-us-east-2.s3.amazonaws.com/latest/install
+            sudo chmod +x ./install 
+            sudo ./install auto
             yum install docker -y
             service docker start
             usermod -a -G docker ec2-user
@@ -32,11 +43,16 @@ resource "aws_instance" "ecommerce-angular-zone2" {
     instance_type="t2.micro"
     availability_zone="${data.aws_availability_zones.available.names[1]}"
     key_name=var.key_pair_name
+    iam_instance_profile="${aws_iam_instance_profile.ecommerce_profile.name}"
     subnet_id="${aws_subnet.public_subnet_zone2.id}"
     security_groups=["${aws_security_group.security_group_public.id}"]
     user_data = <<-EOF
             #!/bin/bash
             yum update -y
+            sudo yum install ruby -y
+            wget https://aws-codedeploy-us-east-2.s3.amazonaws.com/latest/install
+            sudo chmod +x ./install 
+            sudo ./install auto
             yum install docker -y
             service docker start
             usermod -a -G docker ec2-user
@@ -54,11 +70,16 @@ resource "aws_instance" "ecommerce-spring-zone1" {
     instance_type="t2.micro"
     availability_zone="${data.aws_availability_zones.available.names[0]}"
     key_name=var.key_pair_name
+    iam_instance_profile="${aws_iam_instance_profile.ecommerce_profile.name}"
     subnet_id="${aws_subnet.private_subnet_zone1.id}"
     security_groups=["${aws_security_group.security_group_private.id}"]
     user_data = <<-EOF
             #!/bin/bash
             yum update -y
+            sudo yum install ruby -y
+            wget https://aws-codedeploy-us-east-2.s3.amazonaws.com/latest/install
+            sudo chmod +x ./install 
+            sudo ./install auto
             yum install docker -y
             service docker start
             usermod -a -G docker ec2-user
@@ -75,11 +96,16 @@ resource "aws_instance" "ecommerce-spring-zone2" {
     instance_type="t2.micro"
     availability_zone="${data.aws_availability_zones.available.names[1]}"
     key_name=var.key_pair_name
+    iam_instance_profile="${aws_iam_instance_profile.ecommerce_profile.name}"
     subnet_id="${aws_subnet.private_subnet_zone2.id}"
     security_groups=["${aws_security_group.security_group_private.id}"]
     user_data = <<-EOF
             #!/bin/bash
             yum update -y
+            sudo yum install ruby -y
+            wget https://aws-codedeploy-us-east-2.s3.amazonaws.com/latest/install
+            sudo chmod +x ./install 
+            sudo ./install auto
             yum install docker -y
             service docker start
             usermod -a -G docker ec2-user
